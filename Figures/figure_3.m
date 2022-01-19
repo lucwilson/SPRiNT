@@ -1,15 +1,15 @@
 %% Data for figure 3
 
 % Load data
-work = whos('tFOOOF*'); % Data is saved as tFOOOF01, tFOOOF02, etc.
+work = whos('SPRiNT*'); % Data is saved as SPRiNT01, SPRiNT02, etc.
 if numel(work) > 1
-    sd = eval(work(1).name).tFOOOF;
+    sd = eval(work(1).name).SPRiNT;
     for t = 2:numel(work)
-        sdtmp = eval(work(t).name).tFOOOF;
+        sdtmp = eval(work(t).name).SPRiNT;
         sd.channel(end+1:end+length(sdtmp.channel)) = sdtmp.channel;
     end
 else
-    sd = eval(work(1).name).tFOOOF;
+    sd = eval(work(1).name).SPRiNT;
 end
 
 %
