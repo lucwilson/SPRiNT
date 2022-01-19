@@ -114,7 +114,7 @@ Oz = table(subject,eo_ap_slope_mean,eo_ap_slope_std,eo_ap_off_mean,eo_ap_off_std
     ec_ap_slope_mean,ec_ap_slope_std,ec_ap_off_mean,ec_ap_off_std,ec_alpha_cf_mean,ec_alpha_cf_std,ec_alpha_pow_mean,ec_alpha_pow_std,eo_R2,eo_MAE,ec_R2,ec_MAE,glob_R2,glob_MAE);
 Oz = sortrows(Oz,1);
 % Write table, if desired
-% writetable(Oz,'tFOOOF_Oz.csv','Delimiter',','); 
+% writetable(Oz,'SPRiNT_Oz.csv','Delimiter',','); 
 
 % Average spectrograms by number of samples
 stft_spec = stft_spec./t;
