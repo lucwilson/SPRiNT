@@ -11,8 +11,9 @@ Code for simulating neural time series, spectrogram parameterization (using SPRi
 
 # Information
 
-ADD DESCRIPTION OF CODES INSIDE PACKAGE 
-
+Code for simulating time series (see [experiment 1 & 2](https://mc-stan.org/)) can be found in folder: XXXX.
+Code for generating the figure for experiment 1, 2, & 3 can be found in: XXXX.
+Code for the EEG dataset (see [experiment 3](https://mc-stan.org/)) can be found in: XXXXX.
 
 Please contact the authors of this package for any questions and suggestions.
 
