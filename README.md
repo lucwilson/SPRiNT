@@ -1,5 +1,4 @@
-# SPRiNT
-# Time-resolved parameterization of aperiodic and periodic brain activity  
+# SPRiNT: Time-resolved parameterization of aperiodic and periodic brain activity  
 
 Code for simulating neural time series, spectrogram parameterization (using SPRiNT), and generating figures from the SPRiNT preprint.
 
