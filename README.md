@@ -1,6 +1,6 @@
 # SPRiNT
 # Time-resolved parameterization of aperiodic and periodic brain activity  
-================
+
 Code for simulating neural time series, spectrogram parameterization (using SPRiNT), and generating figures from the SPRiNT preprint.
 
 **SPRiNT** is an MATLAB toolbox. This package has an associated [article](https://mc-stan.org/) where we validate the method on both simulated and empirical data.
