@@ -285,11 +285,8 @@ text(8.5-0.1,-2.05,'Specificity','HorizontalAlignment','center','VerticalAlignme
 legend('Alpha peak','Beta peak','Location','North')
 
 %% Representative code to generate data structures for Figure 2
-% Old data structures used "tFOOOF" instead of SPRiNT: replacing these
-% variable names with SPRiNT allows new data to be extracted from data
-% structures
 
-work = whos('tFOOOF*'); % Load data structures as tFOOOF1, tFOOOF2, etc.
+work = whos('SPRiNT*'); % Load data structures as SPRiNT01, SPRiNT02, etc.
 
 fooof_mean = zeros(40,115);
 err_aps = zeros(10000,115);
@@ -303,22 +300,22 @@ mat2 = gen_ap_mat1(1.5,[-2.56 -1.41], [0.5 24 36], 1:40, 1.5:0.5:58.5);
 matr = mat+mat2;
 
 if numel(work) > 1
-    sd2 = eval(work(1).name).tFOOOF;
+    sd2 = eval(work(1).name).SPRiNT;
     for t = 2:numel(work)
-        sdtmp = eval(work(t).name).tFOOOF;
-        fooof_mean = fooof_mean + squeeze(mean(log10(sdtmp.tFOOOF_models),1))';
-        fooof_mean = fooof_mean + squeeze(mean(log10(sdtmp.tFOOOF_models),1))';
+        sdtmp = eval(work(t).name).SPRiNT;
+        fooof_mean = fooof_mean + squeeze(mean(log10(sdtmp.SPRiNT_models),1))';
+        fooof_mean = fooof_mean + squeeze(mean(log10(sdtmp.SPRiNT_models),1))';
         sd2.channel(end+1:end+length(sdtmp.channel)) = sdtmp.channel;
         for chan = 1:length(sdtmp.channel)
             for d = 1:115
                 err_aps((t-1)*1000+chan,d) = mean(squeeze(log10(sdtmp.aperiodic_models(chan,d,:))) - mat2(:,d));
                 err_pks((t-1)*1000+chan,d) = mean(squeeze(log10(sdtmp.peak_models(chan,d,:))) - mat(:,d));
-                err_fms((t-1)*1000+chan,d) = mean(squeeze(log10(sdtmp.tFOOOF_models(chan,d,:))) - matr(:,d));
+                err_fms((t-1)*1000+chan,d) = mean(squeeze(log10(sdtmp.SPRiNT_models(chan,d,:))) - matr(:,d));
             end
         end
     end
 else
-    sd2 = eval(work(1).name).tFOOOF;
+    sd2 = eval(work(1).name).SPRiNT;
 end
 
 times = [sd2.channel(1).data.time];
