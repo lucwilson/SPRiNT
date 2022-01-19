@@ -1,6 +1,6 @@
 # SPRiNT: Time-resolved parameterization of aperiodic and periodic brain activity  
 
-Code for simulating neural time series, spectrogram parameterization (using SPRiNT), and generating figures from the SPRiNT preprint.
+Code for simulating dynamic neural time series, spectrogram parameterization (using SPRiNT), and generating figures from the SPRiNT preprint.
 
 **SPRiNT** is an MATLAB toolbox. This package has an associated [article](https://mc-stan.org/) where we validate the method on both simulated and empirical data.
 
@@ -10,6 +10,10 @@ Code for simulating neural time series, spectrogram parameterization (using SPRi
 
 
 # Information
+
+The SPRiNT algorithm is also available from the [Brainstorm distribution](https://neuroimage.usc.edu/brainstorm/Introduction) (Tadel et al., 2011). See the [Brainstorm website](https://neuroimage.usc.edu/brainstorm/Tutorials/SPRiNT?highlight=%28SPRiNT%29) for a tutorial on how to run SPRiNT
+
+![alt text](https://github.com/lucwilson/SPRiNT/blob/main/Figures/Figure_1_final.jp2)
 
 Code for simulating time series (see [experiment 1 & 2](https://mc-stan.org/)) can be found in folder: XXXX.
 Code for generating the figure for experiment 1, 2, & 3 can be found in: XXXX.
