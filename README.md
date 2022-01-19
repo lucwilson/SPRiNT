@@ -15,8 +15,8 @@ The SPRiNT algorithm is also available from the [Brainstorm distribution](https:
 
 ![alt text](https://github.com/lucwilson/SPRiNT/blob/main/Figures/Figure_1_final.jp2)
 
-Code for simulating time series (see [Study 1](https://mc-stan.org/)) can be found in folder: XXXX.
-Code for generating the figure for Study 1 & 3 can be found in: XXXX.
+Code for simulating time series (see [Study 1](https://mc-stan.org/)) can be found in timeseries.m
+Code for generating the figure for Study 1 & 3 can be found in the FIgure folder.
 Code for the EEG dataset (see [Study 2](https://mc-stan.org/)) can be found in: XXXXX.
 
 Please contact the authors of this package for any questions and suggestions.
