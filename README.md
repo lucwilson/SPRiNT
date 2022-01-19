@@ -20,8 +20,4 @@ Please contact the authors of this package for any questions and suggestions.
 
 If you use this software, please cite it:
 
-#> 
-#> To cite SPRiNT in publications, please use:
-#> 
-#>   
-#> 
+To cite SPRiNT in publications, please use:
