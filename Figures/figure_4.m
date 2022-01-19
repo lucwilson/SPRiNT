@@ -3,7 +3,7 @@
 % Load data
 maxdims = 0;
 mindims = 1000;
-work = whos('tFOOOF*'); % files are named tFOOOF001, tFOOOF002, etc.
+work = whos('SPRiNT*'); % files are named SPRiNT001, SPRiNT002, etc.
 % Initialize table columns
 subject = cell(numel(work),1);
 eo_ap_slope_mean = nan(numel(work),1);
@@ -35,8 +35,8 @@ glob_MAE = nan(numel(work),1);
 % Determine dimensions
 for t = 1:numel(work)
     baseline = eval(work(t).name);
-    maxdims = max([size(squeeze(baseline.tFOOOF.peak_models(1,:,:)),1) maxdims]);
-    mindims = min([size(squeeze(baseline.tFOOOF.peak_models(1,:,:)),1) mindims]);
+    maxdims = max([size(squeeze(baseline.SPRiNT.peak_models(1,:,:)),1) maxdims]);
+    mindims = min([size(squeeze(baseline.SPRiNT.peak_models(1,:,:)),1) mindims]);
 end
 
 % Initialize spectrogram matrices
