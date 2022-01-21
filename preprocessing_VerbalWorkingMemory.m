@@ -1,16 +1,3 @@
-%% == License ==========================================================
-% This file is part of the project megFingerprinting. All of
-% megFingerprinting code is free software: you can redistribute
-% it and/or modify it under the terms of the GNU General Public License as
-% published by the Free Software Foundation,
-% either version 3 of the License, or (at your option) any later version.
-% megFingerprinting is distributed in the hope that it will be useful, but
-% WITHOUT ANY WARRANTY; without even the
-% implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-% See the GNU General Public License for
-% more details. You should have received a copy of the GNU General Public
-% License along with megFingerprinting.
-% If not, see <https://www.gnu.org/licenses/>.
 
 %% == VerbalWorkingMemory Preprocessing ==================================
 % Based on OMEGA's preprocessing script by Guiomar Niso (26 May 2016)
@@ -58,7 +45,7 @@ win_length = 2; % sec
 win_overlap = 50; % percentage
 
 
-
+%% == Import data =========================================================
 files=dir('/media/jdscasta/Elements/VerbalWM_data/sub*/eeg/*.set');
 subjectname=dir('/media/jdscasta/Elements/VerbalWM_data/sub*');
 
@@ -85,12 +72,13 @@ sFiles = bst_process('CallProcess', 'process_import_data_raw',sFiles, [], ...
 
 end
 
-
+% get subjects in Brainstorm DB
 sSubjects = bst_get('ProtocolSubjects');
 SubjectNames = {sSubjects.Subject.Name}';
 
 db_reload_database('current')
 
+% loop through subjects to preprocess (note some manual intervention is needed) 
 for iSubject=1:nSubjects
     tic
     % Start a new report
@@ -108,7 +96,7 @@ for iSubject=1:nSubjects
         [], [], 'subjectname',   SubjectNames{iSubject});
     
 
-    %% == 4) preProcessing PSD on sensors ============================
+    %% == preProcessing PSD on sensors ============================
     % Process: Power spectrum density (Welch) pre-filtering
     sFilesPSDpre = bst_process('CallProcess', 'process_psd', ...
         sData, [], ...
@@ -137,7 +125,7 @@ for iSubject=1:nSubjects
 
 
     
-    %% == 5) Filtering: Line noise and high pass =====================
+    %% == Filtering: Line noise and high pass =====================
     % Process: Notch filter: 50Hz 100Hz
     sFilesNotch = bst_process('CallProcess', 'process_notch', sFilesPSDpre, [], ...
         'sensortypes', 'EEG', ...
@@ -160,7 +148,7 @@ for iSubject=1:nSubjects
 
     
     
-    %% == 6) SSP: EOG and ECG ========================================
+    %% == SSP: EOG and ECG ========================================
 
     % SSP detect and remove blinks per run
     for iRun=1:numel(sFiles)
@@ -195,7 +183,7 @@ for iSubject=1:nSubjects
         'usessp', 1, ...
         'select', 1);
 
-    %% == 7) postProcessing PSD on sensors ===========================
+    %% == postProcessing PSD on sensors ===========================
     % Process: Power spectrum density (Welch)
     sFilesPSDpost = bst_process('CallProcess', 'process_psd', ...
         sFilesRESTING, [], ...
@@ -213,7 +201,7 @@ for iSubject=1:nSubjects
         'SaveKernel', 0));
     
     
-    %% == 8) SSP: Sacades and EMG ====================================
+    %% == SSP: Sacades and EMG ====================================
     % Process: Detect other artifacts (mark noisy segments)
     bst_process('CallProcess', 'process_evt_detect_badsegment', ...
         sFilesRESTING, [], ...
@@ -235,8 +223,10 @@ for iSubject=1:nSubjects
         'saveerp',     0, ...
         'method',      1, ...  % PCA: One component per sensor
         'select',      1);
+        
+    %% NOTE THAT WE MANUALLY VERIFIED THE QUALITY OF THE SSPs BEFORE ACCEPTING THEIR REMOVAL 
     
-        %% == 7) postProcessing PSD on sensors ===========================
+        %% == postProcessing PSD on sensors ===========================
     % Process: Power spectrum density (Welch)
     sFilesPSDpost = bst_process('CallProcess', 'process_psd', ...
         sFilesRESTING, [], ...
