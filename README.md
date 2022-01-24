@@ -19,3 +19,5 @@ Please contact the authors of this package for any questions and suggestions.
 If you use this software, please cite it:
 
 To cite SPRiNT in publications, please use:
+
+Wilson, L. E., da Silva Castanheira, J., & Baillet, S. (2022). Time-resolved parameterization of aperiodic and periodic brain activity. bioRxiv, 2022.2001.2021.477243. 
