@@ -52,28 +52,28 @@ for t = 1:numel(work)
     else
         subject{t} = baseline.DataFile(6:15);
     end
-    for chan = 1:length(baseline.tFOOOF.channel)
+    for chan = 1:length(baseline.SPRiNT.channel)
         % Identify channel of interest
-        if strcmp(baseline.tFOOOF.channel(chan).name,'Oz')
+        if strcmp(baseline.SPRiNT.channel(chan).name,'Oz')
             eo = [119:238,359:478]; % Eyes open times
             ec = [1:118,239:358,479:min([598,length(baseline.Time)])]; % Eyes closed times
             
             % Extract exponent descriptives
-            ap_exp = [baseline.tFOOOF.channel(chan).aperiodics.exponent];
+            ap_exp = [baseline.SPRiNT.channel(chan).aperiodics.exponent];
             eo_ap_slope_mean(t) = mean(ap_exp(eo));
             ec_ap_slope_mean(t) = mean(ap_exp(ec));
             eo_ap_slope_std(t) = std(ap_exp(eo));
             ec_ap_slope_std(t) = std(ap_exp(ec));
             
             % Extract offset descriptives
-            ap_off = [baseline.tFOOOF.channel(chan).aperiodics.offset];
+            ap_off = [baseline.SPRiNT.channel(chan).aperiodics.offset];
             eo_ap_off_mean(t) = mean(ap_off(eo));
             ec_ap_off_mean(t) = mean(ap_off(ec));
             eo_ap_off_std(t) = std(ap_off(eo));
             ec_ap_off_std(t) = std(ap_off(ec));
             
             % Extract alpha peak descriptives
-            alp_pk = baseline.tFOOOF.channel(chan).peaks([baseline.tFOOOF.channel(chan).peaks.center_frequency]<=14 & [baseline.tFOOOF.channel(chan).peaks.center_frequency]>=6);
+            alp_pk = baseline.SPRiNT.channel(chan).peaks([baseline.SPRiNT.channel(chan).peaks.center_frequency]<=14 & [baseline.SPRiNT.channel(chan).peaks.center_frequency]>=6);
             [~, eo_tmp, ~] = intersect([alp_pk.time],baseline.Time(eo));
             [~, ec_tmp, ~] = intersect([alp_pk.time],baseline.Time(ec));
             eo_alpha_cf_mean(t) = mean([alp_pk(eo_tmp).center_frequency]);
@@ -86,20 +86,20 @@ for t = 1:numel(work)
             ec_alpha_pow_std(t) = std([alp_pk(ec_tmp).amplitude]);
             
             % extract goodness of fit stats
-            r2_eo = corrcoef(log10(baseline.TF(chan,eo,:)),log10(baseline.tFOOOF.tFOOOF_models(chan,eo,:)));
+            r2_eo = corrcoef(log10(baseline.TF(chan,eo,:)),log10(baseline.SPRiNT.SPRiNT_models(chan,eo,:)));
             eo_R2(t) = r2_eo(2).^2;
-            eo_MAE(t) = mean(mean(abs(log10(baseline.TF(chan,eo,:))-log10(baseline.tFOOOF.tFOOOF_models(chan,eo,:)))));
+            eo_MAE(t) = mean(mean(abs(log10(baseline.TF(chan,eo,:))-log10(baseline.SPRiNT.SPRiNT_models(chan,eo,:)))));
             
-            r2_ec = corrcoef(log10(baseline.TF(chan,ec,:)),log10(baseline.tFOOOF.tFOOOF_models(chan,ec,:)));
+            r2_ec = corrcoef(log10(baseline.TF(chan,ec,:)),log10(baseline.SPRiNT.SPRiNT_models(chan,ec,:)));
             ec_R2(t) = r2_ec(2).^2;
-            ec_MAE(t) = mean(mean(abs(log10(baseline.TF(chan,ec,:))-log10(baseline.tFOOOF.tFOOOF_models(chan,ec,:)))));
+            ec_MAE(t) = mean(mean(abs(log10(baseline.TF(chan,ec,:))-log10(baseline.SPRiNT.SPRiNT_models(chan,ec,:)))));
             
-            r2_full = corrcoef(log10(baseline.TF(chan,:,:)),log10(baseline.tFOOOF.tFOOOF_models(chan,:,:)));
+            r2_full = corrcoef(log10(baseline.TF(chan,:,:)),log10(baseline.SPRiNT.SPRiNT_models(chan,:,:)));
             glob_R2(t) = r2_full(2).^2;
-            glob_MAE(t) = mean(mean(abs(log10(baseline.TF(chan,:,:))-log10(baseline.tFOOOF.tFOOOF_models(chan,:,:)))));
+            glob_MAE(t) = mean(mean(abs(log10(baseline.TF(chan,:,:))-log10(baseline.SPRiNT.SPRiNT_models(chan,:,:)))));
             % Generate mean spectra for Figure 4
             stft_spec = stft_spec + log10(squeeze(baseline.TF(chan,1:mindims,:)));
-            SPRiNT_spec = SPRiNT_spec + log10(squeeze(baseline.tFOOOF.tFOOOF_models(chan,1:mindims,:)));
+            SPRiNT_spec = SPRiNT_spec + log10(squeeze(baseline.SPRiNT.SPRiNT_models(chan,1:mindims,:)));
             break
         else
             continue
