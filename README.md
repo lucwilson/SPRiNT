@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/449755672.svg)](https://zenodo.org/badge/latestdoi/449755672)
+
 # SPRiNT: Time-resolved parameterization of aperiodic and periodic brain activity  
 
 Code for simulating dynamic neural time series, spectrogram parameterization (using SPRiNT), and generating figures from the SPRiNT preprint.
