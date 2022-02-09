@@ -246,7 +246,7 @@ pp(:,:,4:6) = [];
 figure('Position',[250 250 1000 900])
 % Figure panel A: sample spectrogram
 subplot(3,3,1), hold on
-tf1 = pcolor(ts,tFOOOF01.tFOOOF.freqs,log10(squeeze(sd.tFOOOF_models(1,:,:)))');
+tf1 = pcolor(ts,SPRiNT01.SPRiNT.freqs,log10(squeeze(sd.SPRiNT_models(1,:,:)))');
 tf1.EdgeColor = 'None';
 xlim([ts(1) ts(end)])
 ylim([1 40])
@@ -294,9 +294,9 @@ annotation('arrow',xl,yl,'Color','r')
 % This code replaces the spectrogram (above) with a time-resolved spectrum
 % (below)
 % % % plot(1:40,-vstmp(1).ap_exp(18).*log10(1:40)+vstmp(1).ap_off(18))
-% plot(1:40,log10(squeeze(tFOOOF01.TF(1,26,:))),'k')
-% plot(1:40,log10(tFOOOF01.tFOOOF.channel(1).data(26).fooofed_spectrum),'r')
-% plot(1:40,-tFOOOF01.tFOOOF.channel(1).aperiodics(26).exponent.*log10(1:40)+tFOOOF01.tFOOOF.channel(1).aperiodics(26).offset,'--b')
+% plot(1:40,log10(squeeze(SPRiNT01.TF(1,26,:))),'k')
+% plot(1:40,log10(SPRiNT01.SPRiNT.channel(1).data(26).fooofed_spectrum),'r')
+% plot(1:40,-SPRiNT01.SPRiNT.channel(1).aperiodics(26).exponent.*log10(1:40)+SPRiNT01.SPRiNT.channel(1).aperiodics(26).offset,'--b')
 % % legend('Original spectrum','Full model fit','Aperiodic fit','FontSize',8)
 % xlabel('Frequency (Hz)')
 % ylabel('Power')
