@@ -41,7 +41,7 @@ outputStruct = struct('opts',opt,'freqs',Freqs,'channel',channel);
 % Parameterize STFTs
 s_data = SPRiNT_specparam_matlab(TF,outputStruct.freqs,outputStruct.opts,ts);
 %%  Step 1: Produce STFTs
-function [TF, times] = SPRiNT_stft(F,opts)
+function [TF, ts] = SPRiNT_stft(F,opts)
 % SPRiNT_stft: Compute a locally averaged short-time Fourier transform (for
 % use in SPRiNT)
 % 
