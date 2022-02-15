@@ -86,7 +86,7 @@ function [TF, times] = SPRiNT_stft(F,opts)
     Win = hann(Lwin)';
     WinNoisePowerGain = sum(Win.^2);
     % Initialize STFT,time matrices
-    times = nan(Nwin-(avgWin-1),1);
+    ts = nan(Nwin-(avgWin-1),1);
     TF = nan(size(F,1), Nwin-(avgWin-1), size(FreqVector,2));
     TFtmp = nan(size(F,1), avgWin, size(FreqVector,2));
     % ===== CALCULATE FFT FOR EACH WINDOW =====
@@ -98,9 +98,9 @@ function [TF, times] = SPRiNT_stft(F,opts)
         % Select indices
         Fwin = F(:,iTimes);
         % No need to enforce removing DC component (0 frequency).
-        Fwin = bst_bsxfun(@minus, Fwin, mean(Fwin,2));
+        Fwin = Fwin - mean(Fwin,2);
         % Apply a Hann window to signal
-        Fwin = bst_bsxfun(@times, Fwin, Win);
+        Fwin = Fwin .* Win;
         % Compute FFT
         Ffft = fft(Fwin, NFFT, 2);
         % One-sided spectrum (keep only first half)
@@ -119,7 +119,7 @@ function [TF, times] = SPRiNT_stft(F,opts)
         else
     %     Save STFTs for window
         TF(:,iWin-(avgWin-1),:) = mean(TFtmp,2);
-        times(iWin-(avgWin-1)) = center_time;
+        ts(iWin-(avgWin-1)) = center_time;
         end
     end
 end
@@ -594,7 +594,7 @@ function aperiodic_params = robust_ap_fit(freqs, power_spectrum, aperiodic_mode,
     flatspec(flatspec(:) < 0) = 0;
 
     % Use percential threshold, in terms of # of points, to extract and re-fit
-    perc_thresh = bst_prctile(flatspec, 0.025);
+    perc_thresh = prctile(flatspec, 0.025);
     perc_mask = flatspec <= perc_thresh;
     freqs_ignore = freqs(perc_mask);
     spectrum_ignore = power_spectrum(perc_mask);
