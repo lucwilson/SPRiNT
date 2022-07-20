@@ -121,49 +121,57 @@ stft_spec = stft_spec./t;
 SPRiNT_spec = SPRiNT_spec./t;
 
 % Generate Figure 4
-figure('Position',[500 500 900 800])
+figure('Position',[500 500 1200 800])
 
-% Panel A: stft, followed by SPRiNT
-subplot(3,1,1), hold on
-imagesc(1.5:0.5:size(stft_spec)/2+1,1:40,stft_spec');
+% Panel A: psd+specparam models for eyes-closed (ec) and eyes-open (eo) resting state.
+subplot(3,2,1), hold on
+plot(1:40,specparam_ec,'--b')
+plot(1:40,psd_ec,'b')
+plot(1:40,specparam_eo,'--y')
+plot(1:40,psd_eo,'y')
+xlim([1 40])
+ylim([-13.5 -11])
+xlabel('Frequency (Hz)','FontSize',12)
+ylabel('Log power (a.u.)','FontSize',12)
+
+% Panel C: stft for sub016, with model spectra adjacent
+subplot(3,2,3), hold on
+imagesc(1.5:0.5:size(sub016_spec,1)/2+1,1:40,sub016_spec');
 ax = gca;
 ax.YDir = 'normal';
 ylim([1 40])
-xlim([1.5 size(stft_spec,1)/2+1])
-c = colorbar;
-c.Label.String = 'Log Power (a.u.)';
-caxis([-14.1 -10.9])
-xticks(60:60:300)
-    pos = get(gca, 'Position');
-    pos(2) = pos(2)+0.0;
-    set(gca, 'Position', pos)
-xlabel('Time (s)','FontSize',12)
-ylabel('Frequency (Hz)','FontSize',12)
-
-o = 0.0;
-alp = 0.8;
-subplot(3,1,2), hold on
-draw_box([0 60], [-1 1]+o, [1 26 121],alp);
-draw_box([61.5 121.5], [-1 1]+o, [239 161 7],alp);
-draw_box([123 183], [-1 1]+o, [1 26 121],alp);
-draw_box([184.5 244.5], [-1 1]+o, [239 161 7],alp);
-draw_box([246 300], [-1 1]+o, [1 26 121],alp);
-ylim([-1.5 1.5])
-xlim([1.5 299])
-    pos = get(gca, 'Position');
-    pos(2) = pos(2)+0.05;
-    set(gca, 'Position', pos)
-axis off
-
-subplot(3,1,3),hold on
-b = imagesc(1.5:0.5:size(stft_spec)/2+1,1:40,SPRiNT_spec');
-ax = gca;
-ax.YDir = 'normal';
-ylim([1 40])
-xlim([1.5 size(stft_spec,1)/2+1])
+xlim([1.5 size(SPRiNT_spec,1)/2+1])
 c = colorbar;
 c.Label.String = 'Log Power (a.u.)';
 caxis([-14.1 -10.9])
 xticks(60:60:300)
 xlabel('Time (s)','FontSize',12)
 ylabel('Frequency (Hz)','FontSize',12)
+
+subplot(3,2,4), hold on
+plot(1:40,specparam016,'--b')
+plot(1:40,psd016,'b')
+plot(1:40,SPRiNT016,'--k')
+plot(1:40,stft016,'k')
+xlim([1 40])
+ylim([-14.1 -10.9])
+xlabel('Frequency (Hz)','FontSize',12)
+ylabel('Log power (a.u.)','FontSize',12)
+
+% Panel D: average SPRiNT model spectrogram, with s067 alpha cf
+% distribution adjacent
+subplot(3,2,5), hold on
+imagesc(1.5:0.5:size(SPRiNT_spec,1)/2+1,1:40,SPRiNT_spec');
+ax = gca;
+ax.YDir = 'normal';
+ylim([1 40])
+xlim([1.5 size(SPRiNT_spec,1)/2+1])
+c = colorbar;
+c.Label.String = 'Log Power (a.u.)';
+caxis([-14.1 -10.9])
+xticks(60:60:300)
+xlabel('Time (s)','FontSize',12)
+ylabel('Frequency (Hz)','FontSize',12)
+
+subplot(3,2,6), hold on 
+histogram(sub067_alpha,'BinEdges',6:0.5:14) % but axes flipped
