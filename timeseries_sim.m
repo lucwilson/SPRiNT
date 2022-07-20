@@ -410,3 +410,224 @@ function xs = sim_combined_mat5(varargin)
     end
 
 end
+
+function outStruct = gen_rand_TF_par_rot_kneerev(ap_ranges,dyn_ap_ranges,ap_dyn_time_range,...
+    pk_start_range,pk_end_range,pk_amp_range,pk_sd_range,...
+    n,tune_fs)
+
+% Generate simulation parameters for sim_combined_mat_full_rot from uniform
+% distributions
+% len                   : simulation length (in seconds)
+% ap_ranges             : 2x2 [exp_min exp_max; rotf_min rotf_max]
+% dyn_ap_ranges         : 1x2 [exp_chng_min exp_chng_max]
+% ap_dyn_time_range     : 2x2 [ap_chng_start_prop_min ap_chng_start_prop_max; ap_chng_dur_prop_min ap_chng_dur_prop_max]
+% pk_start_range        : 1x2 [min_start_time max_start_time]
+% pk_len_range          : 1x2 [pk_len_min pk_len_max]
+% pk_cf_range           : 1x2 [pk_cf_min pk_cf_max]
+% pk_amp_range          : 1x2 [pk_amp_min pk_amp_max]
+% pk_sd_range           : 1x2 [pk_sd_min pk_sd_max]
+% min_pk_dist           : Minimum distance from other peaks, in sd of other peaks
+% max_n_peaks           : Maximum number of unique peaks in a simulation
+% n                     : Number of unique simulations
+% tune_fs               : frequency to tune generated parameters to (in Hz)
+% -- -- -- -- 
+% outstruct             : output structure, containing simulation
+%                         parameters for sim_combined_mat_full_rot
+
+    outStruct = struct();
+
+    for s = 1:n
+        % construct aperiodic parameters
+        ap_rotf = 10.^(log10(ap_ranges(2,1))+diff(log10(ap_ranges(2,:)).*rand));
+        ap_init = tune_param([ap_ranges(1,1)+diff(ap_ranges(1,:).*rand) -5.9],tune_fs);
+        ap_init(2) = -5.9+ap_init(1).*log10(ap_rotf);
+        ap_knee = 30.*rand; % Add knee parameter
+        ap_chng = [tune_param(dyn_ap_ranges(1)+diff(dyn_ap_ranges.*rand),tune_fs) 0];
+        ap_chng(2) = ap_chng(1).*log10(ap_rotf);
+            ap_dyn_start = ap_dyn_time_range(1,1)+diff(ap_dyn_time_range(1,:).*rand);
+        ap_dyn_prop = [ap_dyn_start min([0.95 ap_dyn_start+ap_dyn_time_range(2,1)+diff(ap_dyn_time_range(2,:)).*rand])];
+        
+        % Determine number of peaks
+        npeaks = 2;
+        % Generate peak parameters
+        pk_times = zeros(npeaks,2); pk_cf = zeros(npeaks,1); pk_amp = zeros(npeaks,1); pk_sd = zeros(npeaks,1); 
+        for pk = 1:npeaks
+            pk_time_profile = [pk_start_range(1)+diff(pk_start_range).*rand pk_end_range(1)+diff(pk_end_range).*rand];
+            pk_time_profile(2) = diff(pk_time_profile);
+            if pk == 1
+                pk_times(pk,:) = pk_time_profile;
+                pk_cf(pk) = 3+27*rand;
+                pk_amp(pk) = pk_amp_range(1)+diff(pk_amp_range).*rand;
+                pk_sd(pk) = pk_sd_range(1)+diff(pk_sd_range).*rand;
+            else
+                pk_times(pk,:) = pk_time_profile;
+                pk_amp(pk) = pk_amp_range(1)+diff(pk_amp_range).*rand;
+                pk_sd(pk) = pk_sd_range(1)+diff(pk_sd_range).*rand;
+                % determine whether(/which) peaks overlap temporally.
+                pk_cf(pk) = max([pk_cf(1)+max(pk_sd).*2.5 30])+(80-max([pk_cf(1)+max(pk_sd).*2.5 30])).*rand;
+            end
+        end
+        
+        outStruct(s).ap_init = ap_init;
+        outStruct(s).ap_chng = ap_chng;
+        outStruct(s).ap_dyn_prop = ap_dyn_prop;
+        outStruct(s).ap_rotf = ap_rotf;
+        outStruct(s).ap_knee = ap_knee;
+        outStruct(s).pk_times = pk_times;
+        outStruct(s).pk_cf = pk_cf;
+        outStruct(s).pk_amp = pk_amp;
+        outStruct(s).pk_sd = pk_sd;
+        
+    end
+end
+
+function xs = sim_combined_mat_full_rot_knee(varargin)
+% A comprehensive signal simulator, but this time with an aperiodic knee!
+% Based on works in NeuroDSP/sim by Cole et al. (2019)
+% https://github.com/neurodsp-tools/neurodsp/blob/main/paper/paper.md
+% doi:10.21105/joss.01272
+% varargin{1} = len (s)
+% varargin{2} = fs (Hz)
+% varargin{3} = exponent (-2 for example)
+% varargin{4} = [cf ...] in Hz
+% varargin{5} = [hgt ...] in log10(Hz)
+% varargin{6} = [bw ...] in Hz
+% varargin{7} = [start dur ...] for each simulated peak (in s)
+% varargin{8} = [cfr ...] in Hz
+% varargin{9} = [sdr ...] in Hz
+% varargin{10} = [dsl, fracStart, fracStop]
+% varargin{11} = aperiodic rotation frequency in Hz
+% varargin{12} = aperiodic knee frequency
+% varargin{13} = number of simulations (1, loop outside fn)
+
+    time = varargin{1};
+    fs = varargin{2};
+    ap_pars = varargin{3};
+    
+    freqs = linspace(0,fs./2,round(time.*fs./2));
+    times = linspace(1./fs,time.*fs./fs,time.*fs);
+
+    if length(varargin) > 3 % if a peak was provided
+        cf = varargin{4};
+        hgt = varargin{5};
+        stdev = varargin{6};
+        tps = ceil(varargin{7}.*fs)./fs;
+        if length(varargin) > 7
+            cfr = varargin{8};
+            sdr = varargin{9};
+            ap_dyn = varargin{10};
+            rot_f = varargin{11};
+            knee = varargin{12};
+        end
+        nS = varargin{13};
+        
+        % Ensures proportional representation of frequencies 
+        % (done here to speed up simulations of the same signal)
+        cos_norms = zeros(size(freqs));
+        for f = 1:length(freqs)
+            cos_norms(f) = norm(cos(2.*pi.*freqs(f).*times),2).^2;
+        end
+
+        rel_heights = zeros(length(times),length(freqs));
+        for peak = 1:length(cf)
+            envMat = zeros(1,time*fs)';
+            % Generate centre frequency shift vector
+            cfrMat = zeros(size(times))'; 
+            if length(tps(peak,1)*fs+tps(peak,2)*fs*cfr(peak,2)+1:tps(peak,1)*fs+ ...
+                tps(peak,2)*fs*cfr(peak,3)) ~= round(round(cfr(peak,3)-cfr(peak,2),2)*tps(peak,2)*fs)
+                cfrMat(tps(peak,1)*fs+tps(peak,2)*fs*cfr(peak,2):tps(peak,1)*fs+ ...
+                    tps(peak,2)*fs*cfr(peak,3))=linspace(0,cfr(peak,1),...
+                    round(round(cfr(peak,3)-cfr(peak,2),2)*tps(peak,2)*fs));
+            else
+                cfrMat(tps(peak,1)*fs+tps(peak,2)*fs*cfr(peak,2)+1:tps(peak,1)*fs+ ...
+                    tps(peak,2)*fs*cfr(peak,3))=linspace(0,cfr(peak,1),...
+                    round(round(cfr(peak,3)-cfr(peak,2),2)*tps(peak,2)*fs));
+            end
+            cfrMat(tps(peak,1)*fs+tps(peak,2)*fs*cfr(peak,3):end) = cfr(peak,1);
+            % Generate standard deviation shift vector
+            sdrMat = zeros(size(times))';
+            if length(tps(peak,1)*fs+tps(peak,2)*fs*sdr(peak,2)+1:tps(peak,1)*fs+ ...
+                tps(peak,2)*fs*sdr(peak,3)) ~= round(round(sdr(peak,3)-sdr(peak,2),2)*tps(peak,2)*fs)
+                sdrMat(tps(peak,1)*fs+tps(peak,2)*fs*sdr(peak,2):tps(peak,1)*fs+ ...
+                    tps(peak,2)*fs*sdr(peak,3))=linspace(0,sdr(peak,1),round((sdr(peak,3)-sdr(peak,2))*tps(peak,2)*fs));
+            else
+                sdrMat(tps(peak,1)*fs+tps(peak,2)*fs*sdr(peak,2)+1:tps(peak,1)*fs+ ...
+                    tps(peak,2)*fs*sdr(peak,3))=linspace(0,sdr(peak,1),round((sdr(peak,3)-sdr(peak,2))*tps(peak,2)*fs));
+            end
+            sdrMat(tps(peak,1)*fs+tps(peak,2)*fs*sdr(peak,3):end) = sdr(peak,1);
+            % Generate amplitude vector (with Tukey kernel)
+            if length(tps(peak,1)*fs+1:(tps(peak,1)+tps(peak,2))*fs) ~= round(tps(peak,2)*fs)
+                envMat(tps(peak,1)*fs:(tps(peak,1)+tps(peak,2))*fs) = tukeywin(tps(peak,2)*fs,0.4);
+            else
+                envMat(tps(peak,1)*fs+1:(tps(peak,1)+tps(peak,2))*fs) = tukeywin(tps(peak,2).*fs,0.4);
+            end
+            % Generate peak power profile across time
+            rh_tmp = ones(size(freqs)).*(envMat*hgt(peak)).*...
+                exp(-(ones(size(envMat)).*freqs-ones(size(freqs)).*...
+                (cf(peak)+cfrMat)).^2./(2.*(ones(size(freqs)).*(stdev(peak)+sdrMat).^2)));
+            % Combine with previous peaks
+            rel_heights = rel_heights +rh_tmp;
+        end
+        % Generate white noise time series
+        xs_tmp = sim_aperiodic_mat_mult(time*fs,0,1,nS);
+        % Generate simulated neural time series with aperiodic knee
+        xs = sim_spec_full_rot_knee(xs_tmp, ap_pars, fs, ap_dyn, rot_f, knee, cos_norms, rel_heights);
+    else
+        xs = sim_aperiodic_mat_mult(time*fs,slope,1,1);
+    end
+    
+end
+
+function xs = sim_spec_full_rot_knee(aper_xs, ap_pars, fs, ap_dyn, rot_f, knee_f, cos_norms, rel_heights)
+    
+    % Simulate neural time series, this time with an aperiodic knee!
+    % Based on works in NeuroDSP/sim by Cole et al. (2019)
+    % https://github.com/neurodsp-tools/neurodsp/blob/main/paper/paper.md
+    % doi:10.21105/joss.01272
+    % aper_xs       : white noise time series (same #samples as desired time series)
+    %                   NOTE: as is, offset initialized at -5.9 a.u.
+    % ap_pars       : initial aperiodic parameters (only position 1 is necessary)
+    % fs            : sampling rate (Hz)
+    % ap_dyn        : [change_in_exponent change_in_offset start_of_change(in prop) end_of_change(in prop)]
+    % rot_f         : rotation frequency (Hz; determines offset, proportional to exponent)
+    % knee_f        : aperiodic knee frequency (Hz)
+    % cos_norms     : ensures proportional representation of each frequency
+    % rel_heights   : periodic "spectrogram"
+    % -- -- -- --
+    % xs            : simulated neural time series
+
+    slen = length(aper_xs);
+    times = linspace(1./fs,slen./fs,slen);
+    
+    % generate aperiodic fft
+    sig_fft = fft(aper_xs);
+    sig_fft = sig_fft(1:round(end./2))./100;
+    freqs = linspace(0,fs./2,round(length(aper_xs)./2));
+    % Calculate exponent at all time samples
+    slrMat = ones(size(times))'.*ap_pars(1); % before aperiodic shift
+    % during aperiodic shift
+    if length(ap_dyn(3)*slen+1:ap_dyn(4)*slen) ~= round(ap_dyn(4).*slen-(ap_dyn(3).*slen))
+        slrMat(ap_dyn(3)*slen:ap_dyn(4)*slen)=ap_pars(1)+linspace(0,ap_dyn(1),...
+            round(ap_dyn(4).*slen-(ap_dyn(3).*slen)));
+    else
+        slrMat(ap_dyn(3)*slen+1:ap_dyn(4)*slen)=ap_pars(1)+linspace(0,ap_dyn(1),...
+            round(ap_dyn(4).*slen-(ap_dyn(3).*slen)));
+    end
+    % after aperiodic shift
+    slrMat(ap_dyn(4)*slen+1:end) = ap_dyn(1)+ap_pars(1);
+    
+    % Generate aperiodic "spectrogram"
+    apMat = ones(size(rel_heights)); % initialize
+    apMat(:,2:end) = ones(length(times),1)*sig_fft(2:end).*(freqs(2:end)./rot_f).^(-slrMat./2);
+    
+    % Knee compensation
+    apMat(:,2:end) = apMat(:,2:end)./sqrt((knee_f./freqs(2:end).^slrMat+1));
+    
+    apDiff = -real(apMat);
+    apDiff(apDiff > 0) = 0;
+    % Combine aperiodic and periodic "spectrograms"
+    cos_coeffs = (-real(apMat) +apDiff +sqrt(real(apMat).^2 + ...
+        (10.^rel_heights - 1).*abs(apMat).^2))./cos_norms; 
+    % Generate simulated neural time series
+    xs = sum(cos_coeffs.*cos(times'*2*pi*freqs+2*pi*rand(size(freqs))),2,'omitnan')';
+end
