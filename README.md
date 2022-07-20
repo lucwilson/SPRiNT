@@ -10,8 +10,6 @@ Code for simulating dynamic neural time series, spectrogram parameterization (us
 
 Code for runnning the SPRiNT algorithm can be found in SPRiNT.m. The SPRiNT algorithm is also available from the [Brainstorm distribution](https://neuroimage.usc.edu/brainstorm/Introduction) (Tadel et al., 2011). See the [Brainstorm website](https://neuroimage.usc.edu/brainstorm/Tutorials/SPRiNT?highlight=%28SPRiNT%29) for a tutorial on how to run SPRiNT.
 
-![alt text](https://github.com/lucwilson/SPRiNT/blob/main/Figures/Figure_1_final.jp2)
-
 Code for simulating time series (see [Study 1](https://osf.io/c3gn4/)) can be found in timeseries_sim.m. Code for generating the figure for Study 1 & 3 can be found in the Figures folder. Code for the EEG dataset (see [Study 2](https://www.nature.com/articles/sdata2018308)) can be found in the LEMON_code folder.
 
 Please contact the authors of this package for any questions and suggestions.
