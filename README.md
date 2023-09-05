@@ -4,7 +4,7 @@
 
 Code for simulating dynamic neural time series, spectrogram parameterization (using SPRiNT), and generating figures from the SPRiNT preprint.
 
-**SPRiNT** is a MATLAB toolbox. This package has an associated [article](https://www.biorxiv.org/content/10.1101/2022.01.21.477243v1.abstract) where we validate the method on both simulated and empirical data.
+**SPRiNT** is a MATLAB toolbox. This package has an associated [article](https://elifesciences.org/articles/77348) where we validate the method on both simulated and empirical data.
 
 # Information
 
@@ -20,4 +20,4 @@ If you use this software, please cite it.
 
 To cite SPRiNT in publications, please use:
 
-Wilson, L. E., da Silva Castanheira, J., & Baillet, S. (2022). Time-resolved parameterization of aperiodic and periodic brain activity. bioRxiv, 2022.2001.2021.477243. 
+Wilson, L. E., da Silva Castanheira, J., & Baillet, S. (2022). Time-resolved parameterization of aperiodic and periodic brain activity. eLife, 11, e77348. doi:10.7554/eLife.77348
